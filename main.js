@@ -21,7 +21,7 @@ function blueprintForm() {
 
         case "BLUEPRINT_FORM_GET_URL_PARAMS":
           const params = Object.fromEntries(new URLSearchParams(window.location.search));
-          event.source.postMessage({ type: "URL_PARAMS", params: params }, event.origin);
+          event.source.postMessage({ type: "URL_PARAMS", params: params }, "*");
           break;
 
         case "BLUEPRINT_FORM_HEIGHT":
