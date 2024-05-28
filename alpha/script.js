@@ -1,48 +1,49 @@
 function blueprintForm() {
   window.addEventListener("load", () => {
-    window.addEventListener("message", function (event) {
-      if (event.data.type === "BLUEPRINT_FORM_REDIRECT") {
-        if (event.data.url) {
-          window.location.href = event.data.url
-        }
-      }
-    })
+    const iframe = document.getElementById("blueprint-form");
 
-    window.addEventListener("message", function (event) {
-      if (event.data.type === "BLUEPRINT_FORM_GET_URL_PARAMS") {
-        // Get URL parameters and send them back to the iframe
-        var params = Object.fromEntries(new URLSearchParams(window.location.search))
-        event.source.postMessage({ type: "URL_PARAMS", params: params }, event.origin)
-      }
-    })
+    if (!iframe) {
+      console.error("Iframe with id 'blueprint-form' not found.");
+      return;
+    }
 
-    var iframe = document.getElementById("blueprint-form")
-    // get default height of iframe, in number without px
-    var defaultHeight = iframe.height
-    defaultHeight = parseInt(defaultHeight.replace("px", ""))
+    let defaultHeight = parseInt(iframe.height.replace("px", "")) || 0;
 
-    function updateIframeHeight(height) {
-      if (!iframe) {
-        return
-      }
+    function handleMessages(event) {
+      if (!event || !event.data) return;
 
-      if (height) {
-        // check if iframe height is greater than default height
-        if (height > defaultHeight) {
-          iframe.height = height
-        } else {
-          iframe.height = defaultHeight
-        }
+      switch (event.data.type) {
+        case "BLUEPRINT_FORM_REDIRECT":
+          if (event.data.url) {
+            window.location.href = event.data.url;
+          }
+          break;
+
+        case "BLUEPRINT_FORM_GET_URL_PARAMS":
+          const params = Object.fromEntries(new URLSearchParams(window.location.search));
+          event.source.postMessage({ type: "URL_PARAMS", params: params }, event.origin);
+          break;
+
+        case "BLUEPRINT_FORM_HEIGHT":
+          console.log("Received iframe height:", event.data.height);
+          updateIframeHeight(event.data.height);
+          break;
+
+        default:
+          break;
       }
     }
 
-    window.addEventListener("message", function (event) {
-      if (event.data.type === "BLUEPRINT_FORM_HEIGHT") {
-        console.log("Received iframe height:", event.data.height)
-        updateIframeHeight(event.data.height)
+    function updateIframeHeight(height) {
+      if (height && height > defaultHeight) {
+        iframe.height = `${height}px`;
+      } else {
+        iframe.height = `${defaultHeight}px`;
       }
-    })
-  })
+    }
+
+    window.addEventListener("message", handleMessages);
+  });
 }
 
-blueprintForm()
+blueprintForm();
