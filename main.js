@@ -1,49 +1,58 @@
 function blueprintForm() {
   window.addEventListener("load", () => {
-    const iframe = document.getElementById("blueprint-form");
+    const iframe = document.getElementById("blueprint-form")
 
     if (!iframe) {
-      console.error("Iframe with id 'blueprint-form' not found.");
-      return;
+      console.error("Iframe with id 'blueprint-form' not found.")
+      return
     }
 
-    let defaultHeight = parseInt(iframe.height.replace("px", "")) || 0;
+    let defaultHeight = parseInt(iframe.height.replace("px", "")) || 0
 
     function handleMessages(event) {
-      if (!event || !event.data) return;
+      if (!event || !event.data) return
 
       switch (event.data.type) {
         case "BLUEPRINT_FORM_REDIRECT":
           if (event.data.url) {
-            window.location.href = event.data.url;
+            window.location.href = event.data.url
           }
-          break;
+          break
 
         case "BLUEPRINT_FORM_GET_URL_PARAMS":
-          const params = Object.fromEntries(new URLSearchParams(window.location.search));
-          event.source.postMessage({ type: "URL_PARAMS", params: params }, "*");
-          break;
+          const params = Object.fromEntries(new URLSearchParams(window.location.search))
+          event.source.postMessage({ type: "URL_PARAMS", params: params }, "*")
+          break
 
         case "BLUEPRINT_FORM_HEIGHT":
-          console.log("Received iframe height:", event.data.height);
-          updateIframeHeight(event.data.height);
-          break;
+          updateIframeHeight(event.data.height)
+          break
+
+        case "BLUEPRINT_FORM_PAGE_CHANGE":
+          window.scrollTo({
+            behavior: "smooth",
+            top:
+              document.querySelector("#blueprint-form").getBoundingClientRect().top -
+              document.body.getBoundingClientRect().top -
+              100,
+          })
+          break
 
         default:
-          break;
+          break
       }
     }
 
     function updateIframeHeight(height) {
       if (height && height > defaultHeight) {
-        iframe.height = `${height}px`;
+        iframe.height = `${height}px`
       } else {
-        iframe.height = `${defaultHeight}px`;
+        iframe.height = `${defaultHeight}px`
       }
     }
 
-    window.addEventListener("message", handleMessages);
-  });
+    window.addEventListener("message", handleMessages)
+  })
 }
 
-blueprintForm();
+blueprintForm()
